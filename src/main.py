@@ -5,7 +5,9 @@ app = Flask(__name__)
 
 @app.route('/getvrf',methods=['POST'])
 def getvrf():
-    connection =  gpapi("./testbed.yaml","RIOS1")
+    json_data = request.get_json()
+    name = json_data["name"]
+    connection =  gpapi("./testbed.yaml",name)
     parse = connection.get_vrf_detail()
     data = {"data":parse} 
     response = app.response_class(response=json.dumps(data),
