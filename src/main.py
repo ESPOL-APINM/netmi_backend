@@ -97,23 +97,22 @@ def addYaml():
         password = json_data["password"]
         secret = json_data["secret"]
         new_yaml_data_dict = {
-            'R1':{
-                'type': os,
-                'os': os,
-                'alias': name,
+            name:{
+                'connections':{
+                    'cli':{
+                        'ip': ip,
+                        'protocol': 'ssh -c aes128-cbc'
+                    }
+                },
                 'credentials':{
                     'default':{
                         'username': username,
-                        'password': password,
+                        'password': password
                     },'enable':{
                         'password': secret                }
                 },
-                'connections':{
-                    'cli':{
-                        'protocol': 'ssh',
-                        'ip': ip
-                    }
-                }
+                'os': os,
+                'type': os
             }
         }
         with open('./testbed.yaml','r') as yamlfile:
