@@ -11,7 +11,7 @@ def shutdown_server():
     func()
 
 
-@app.route('/shutdown')
+@app.route('/restart')
 def shutdown():
     shutdown_server()
     app.run()
