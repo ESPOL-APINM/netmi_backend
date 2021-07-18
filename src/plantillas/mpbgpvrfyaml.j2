@@ -1,0 +1,10 @@
+{% for vrfname, infoname in data.items() %}
+{{ vrfname }}:
+    vrf_name:"{{ vrfname }}"
+{% if infoname.route_distinguisher is defined %}
+    vrf_rd:"{{ infoname.route_distinguisher }}"
+{% endif %}
+    vrf_addfam:"ipv4 unicast"
+    vrf_redistribute1:"static"
+    vrf_redistribute2:"connected"
+{% endfor -%}

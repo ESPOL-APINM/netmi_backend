@@ -1,0 +1,23 @@
+{% for vrfname, infoname in data.items() %}
+vrf {{ vrfname }}
+{% if infoname.description is defined %}
+description {{ infoname.description }}
+{% endif %}
+address-family ipv4 unicast
+{% for rt,infort in infoname.address_family.ipv4.route_targets.items() %}
+{% if infort.rt_type == "both" %}
+export route-target {{ rt }}
+import route-target {{ rt }}
+{% endif %}
+{% if infort.rt_type == "export" %}
+export route-target {{ rt }}
+{% endif %}
+{% if infort.rt_type == "import" %}
+import route-target {{ rt }}
+{% endif %}
+{% endfor -%}
+{% if infoname.address_family.ipv4.routing_table_limit is defined %}
+maximum prefix {{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_number }} {{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value }}
+{% endif %}
+!
+{% endfor -%}

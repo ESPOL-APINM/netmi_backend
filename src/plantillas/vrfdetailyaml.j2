@@ -1,0 +1,24 @@
+{% for vrfname, infoname in data.items() %}
+{{ vrfname }}:
+    vrf_name:"{{ vrfname }}"
+{% if infoname.description is defined %}
+    vrf_description:"{{ infoname.description }}"
+{% endif %}
+    vrf_addfam:"ipv4 unicast"
+{% for rt,infort in infoname.address_family.ipv4.route_targets.items() %}
+{% if infort.rt_type == "both" %}
+    vrf_rt_export:"{{ rt }}"
+    vrf_rt_import:"{{ rt }}"
+{% endif %}
+{% if infort.rt_type == "export" %}
+    vrf_rt_export:"{{ rt }}"
+{% endif %}
+{% if infort.rt_type == "import" %}
+    vrf_rt_import:"{{ rt }}"
+{% endif %}
+{% endfor -%}
+{% if infoname.address_family.ipv4.routing_table_limit is defined %}
+    vrf_limit:"{{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_number }}"
+    vrf_percent"{{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value }}"
+{% endif %}
+{% endfor -%}
