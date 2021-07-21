@@ -11,7 +11,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @cross_origin()
 def getvrf():
     try:
-        connection =  gpapi("./testbed.yaml","RIOS1")
+        json_data = request.get_json()
+        connection =  gpapi(json_data)
         parse = connection.showconfig("show access-list")
         data = {"data":parse} 
         s=200
@@ -29,8 +30,7 @@ def getvrf():
 def getvrfconfig():
     try:
         json_data = request.get_json()
-        name = json_data["name"]
-        connection =  gpapi("./testbed.yaml",name)
+        connection =  gpapi(json_data)
         parse = connection.showconfig("show vrf detail")
         data = {"data":parse} 
         env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
@@ -51,7 +51,7 @@ def getvrfyaml():
     try:
         json_data = request.get_json()
         name = json_data["name"]
-        connection =  gpapi("./testbed.yaml",name)
+        connection =  gpapi(json_data)
         parse = connection.showconfig("show vrf detail")
         data = {"data":parse} 
         env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
@@ -73,7 +73,7 @@ def getmpbgpvrfconfig():
     try:
         json_data = request.get_json()
         name = json_data["name"]
-        connection =  gpapi("./testbed.yaml",name)
+        connection =  gpapi(json_data)
         parse = connection.showconfig("show vrf detail")
         data = {"data":parse} 
         env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
@@ -94,7 +94,7 @@ def getmpbgpvrfyaml():
     try:
         json_data = request.get_json()
         name = json_data["name"]
-        connection =  gpapi("./testbed.yaml",name)
+        connection =  gpapi(json_data)
         parse = connection.showconfig("show vrf detail")
         data = {"data":parse} 
         env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
@@ -116,7 +116,7 @@ def getaclconfig():
     try:
         json_data = request.get_json()
         name = json_data["name"]
-        connection =  gpapi("./testbed.yaml",name)
+        connection =  gpapi(json_data)
         parse = connection.showconfig("show access-list")
         data = {"data":parse} 
         env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
@@ -137,7 +137,7 @@ def getaclyaml():
     try:
         json_data = request.get_json()
         name = json_data["name"]
-        connection =  gpapi("./testbed.yaml",name)
+        connection =  gpapi(json_data)
         parse = connection.showconfig("show access-list")
         data = {"data":parse} 
         env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
@@ -152,57 +152,51 @@ def getaclyaml():
                                   mimetype='text/yaml')
     return response
 
-#TESTBED FUNCTIONS
-@app.route('/addtoyaml',methods=['POST'])
+@app.route('/getparsingyaml',methods=['POST'])
 @cross_origin()
-def addYaml():
+def getparsingyaml():
     try:
         json_data = request.get_json()
-        name = json_data["name"]
-        os = json_data["os"]
-        ip = json_data["ip"]
-        username = json_data["username"]
-        password = json_data["password"]
-        secret = json_data["epassword"]
-        print(name)
-        new_yaml_data_dict = {
-            name:{
-                'connections':{
-                    'cli':{
-                        'ip': ip,
-                        'protocol': 'ssh -c aes128-cbc'
-                    }
-                },
-                'credentials':{
-                    'default':{
-                        'username': username,
-                        'password': password
-                    },'enable':{
-                        'password': secret                }
-                },
-                'os': os,
-                'type': os
-            }
-        }
-            
-        with open('./testbed.yaml','r') as yamlfile:
-            testbedyaml = yaml.safe_load(yamlfile) # Note the safe_load
-            testbedyaml['devices'].update(new_yaml_data_dict)
-
-        if testbedyaml:
-            with open('testbed.yaml','w') as yamlfile:
-                yaml.safe_dump(testbedyaml, yamlfile) 
-        d="OK"
+        show = json_data["show"]
+        plantilla = json_data["plantilla"]
+        connection =  gpapi(json_data)
+        parse = connection.showconfig(show)
+        data = {"data":parse} 
+        env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
+        template = env.get_template(plantilla)
+        doc = template.render(data)
         s=200
     except:
-        d="Error addYaml"
+        doc="No data"
         s=400
-    
-    data = {"data":d}
-    response = app.response_class(response=json.dumps(data),
+    response = app.response_class(response=doc,
                                   status=s,
-                                  mimetype='application/json')
+                                  mimetype='text/yaml')
     return response
-    
+
+@app.route('/getparsingcfg',methods=['POST'])
+@cross_origin()
+def getparsingcfg():
+    try:
+        json_data = request.get_json()
+        show = json_data["show"]
+        plantilla = json_data["plantilla"]
+        connection =  gpapi(json_data)
+        parse = connection.showconfig(show)
+        data = {"data":parse} 
+        env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
+        template = env.get_template(plantilla)
+        doc = template.render(data)
+        s=200
+    except:
+        doc="No data"
+        s=400
+    response = app.response_class(response=doc,
+                                  status=s,
+                                  mimetype='text/cfg')
+    return response
+
+   
+
 if __name__ == "__main__":
     app.run(debug=True)
