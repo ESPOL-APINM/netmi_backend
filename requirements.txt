@@ -4,4 +4,4 @@ PyYAML==5.4.1
 requests==2.25.1
 Jinja2==3.0.1
 Flask==2.0.1
-Flask-Cors==1.1.2
+Flask-Cors==3.0.10
