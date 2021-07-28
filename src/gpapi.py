@@ -51,3 +51,11 @@ class gpapi(object):
         parse = self.device.parse(show)
         self.disconnect()
         return parse
+
+    def showconfig2parsers(self,show=None,show2=None):
+        self.connect()
+        parse = self.device.parse(show)
+        parse2 = self.device.parse(show2)
+        parse={"data1":parse,"data2":parse2}
+        self.disconnect()
+        return parse

@@ -1,0 +1,7 @@
+{% for bdname, infoname in data.service_instance.items() %}
+bridge-domain {{ bdname }}
+    {% for interface, infointerface in infoname.interfaces.items() %}
+    {{interface}}.{{bdname}}
+    {% endfor -%}
+!
+{% endfor -%}

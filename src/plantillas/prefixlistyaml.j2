@@ -1,0 +1,26 @@
+{% set prefixlist = data.prefix_set_name %}
+{% for prefixname, infoname in prefixlist.items()%}
+prefixset:
+{% set prefixupper = prefixname.upper() %}
+{% if "PFX" in prefixupper %}
+{% set pu1 = prefixupper.split("PFX-") %}
+{% set pu2 = prefixupper.split("PFX_") %}
+{% if pu1|length == 2 %}
+{% set n = pu1[1] %}
+ prefixset_name:pfx_{{n}}_p1_permit
+{% elif pu2|length == 2 %}
+{% set n = pu2[1] %}
+ prefixset_name:pfx_{{n}}_p1_permit
+{% endif %}
+{% else %}
+ prefixset_name:pfx_{{prefixname}}_p1_permit
+{% endif %}
+{% if infoname.prefixes is defined %}
+{% set prefixes = infoname.prefixes %}
+{% for prefixeskey, infoprefixes in prefixes.items()%}
+{% if infoprefixes.action is defined and  infoprefixes.action == "permit" %}
+ ip:{{infoprefixes.prefix}}
+ {% endif %}
+{% endfor -%}
+{% endif %}
+{% endfor -%}

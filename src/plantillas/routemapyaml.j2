@@ -1,0 +1,166 @@
+{% for routemapname, infoname in data.items() %}
+route-policy:
+rpname:{{ routemapname }} 
+{% set fori = namespace(value=0) -%} 
+{%- for statements, infostmt in infoname.items() -%}
+{%- set statementsnum = infostmt.keys()|length -%} 
+{%- for stmtnum, infostmtnum in infostmt.items() %}
+    {%- set idc = [] -%} 
+    {%- set ida = [] -%} 
+{%- if infostmtnum.conditions is defined -%} 
+    {%- if infostmtnum.conditions != {} -%} 
+        {%- for condname, infocond in infostmtnum.conditions.items() -%}
+            {%- if condname == "match_med_eq" -%}
+                {%- if idc|length ==0 -%}
+                {%- set idc = idc.append("rib-metric eq " ~infocond) -%}
+                {%- else -%}
+                {%- set idc = idc.append(" and (rib-metric eq " ~infocond~")") -%}
+                {%- endif -%}
+            {%- elif condname == "match_prefix_list" -%}
+                {%- set prefixupper = infocond.upper() -%}
+                {%- if "PFX" in prefixupper -%}
+                    {%- set pu1 = prefixupper.split("PFX-") -%}
+                    {%- set pu2 = prefixupper.split("PFX_") -%}
+                    {%- if pu1|length == 2 -%}
+                        {%- set n = pu1[1] -%}
+                        {%- if idc|length ==0 -%}
+                        {%- set idc = idc.append("destination in pfx_"~n~"_p1_permit") -%}
+                        {%- else -%}
+                        {%- set idc = idc.append(" and (destination in pfx_"~n~"_p1_permit)") -%}
+                        {%- endif -%}
+                    {%- elif pu2|length == 2 -%}
+                        {%- set n = pu2[1] -%}
+                        {%- if idc|length ==0 -%}
+                        {%- set idc = idc.append("destination in pfx_"~n~"_p1_permit") -%}
+                        {%- else -%}
+                        {%- set idc = idc.append(" and (destination in pfx_"~n~"_p1_permit)") -%}
+                        {%- endif -%}
+                    {%- else -%}
+                        {%- if idc|length ==0 -%}
+                        {%- set idc = idc.append("destination in pfx_"~infocond~"_p1_permit)") -%}
+                        {%- else -%}
+                        {%- set idc = idc.append(" and (destination in pfx_"~infocond~"_p1_permit)") -%}
+                        {%- endif -%}
+                    {%- endif -%}
+                {%- else -%}
+                    {%- if idc|length ==0 -%}
+                    {%- set idc = idc.append("destination in pfx_"~infocond~"_p1_permit") -%}
+                    {%- else -%}
+                    {%- set idc = idc.append(" and (destination in pfx_"~infocond~"_p1_permit)") -%}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- elif condname == "match_level_eq" -%}
+                {%- if idc|length ==0 -%}
+                {%- set idc = idc.append("route-type is " ~infocond) -%}
+                {%- else -%}
+                {%- set idc = idc.append(" and (route-type is " ~infocond~")") -%}
+                {%- endif -%}
+            {%- elif condname == "match_tag_list" -%}            
+                {%- if idc|length ==0 -%}
+                {%- set idc = idc.append("tag eq " ~infocond) -%}
+                {%- else -%}
+                {%- set idc = idc.append(" and (tag eq " ~infocond~")") -%}
+                {%- endif -%}
+            {%- elif condname == "match_local_pref_eq" -%}
+            {%- elif condname == "match_nexthop_in" -%}
+            {%- elif condname == "match_local_pref_eq" -%}
+            {%- elif condname == "match_nexthop_in" -%}
+            {%- elif condname == "match_level_eq" -%}
+            {%- elif condname == "match_route_type" -%}
+            {%- elif condname == "match_community_list" -%}
+            {%- elif condname == "match_ext_community_list" -%}
+            {%- elif condname == "match_as_path_list" -%}
+            {%- elif condname == "match_interface" -%}
+            {%- elif condname == "match_as_number_list" -%}
+            {%- else -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- else -%}
+    {%- endif -%}
+{%- endif -%}
+{%- if infostmtnum.actions is defined -%} 
+    {%- for actname, infoact in infostmtnum.actions.items() -%}
+        {%- if actname == "set_route_origin" -%}
+        {%- elif actname == "set_distance" -%}
+        {%- set ida = ida.append("set distance " ~infoact) -%}
+        {%- elif actname == "set_local_pref" -%}
+            {%- set ida = ida.append("set local-preference " ~infoact) -%}
+        {%- elif actname == "set_next_hop" -%}
+        {%- elif actname == "set_next_hop_self" -%}
+        {%- elif actname == "set_as_path_prepend" -%}
+        {%- elif actname == "set_as_path_group" -%}
+        {%- elif actname == "set_as_path_prepend_repeat_n" -%}
+        {%- elif actname == "set_community" -%}
+            {%- set ida = ida.append("set set-community " ~infoact) -%}
+        {%- elif actname == "set_community_additive" -%}
+        {%- elif actname == "set_community_no_advertise" -%}
+        {%- elif actname == "set_community_no_export" -%}
+        {%- elif actname == "set_community_delete" -%}
+        {%- elif actname == "set_ext_community_rt" -%}
+        {%- elif actname == "set_ext_community_soo" -%}
+        {%- elif actname == "set_ext_community_vpn" -%}
+        {%- elif actname == "set_ext_community_rt_additive" -%}
+        {%- elif actname == "set_ext_community_delete" -%}
+        {%- elif actname == "set_level" -%}
+            {%- set ida = ida.append("set level " ~infoact) -%}
+        {%- elif actname == "set_weight" -%}
+            {%- set ida = ida.append("set weight " ~infoact) -%}
+        {%- elif actname == "set_metric" -%}
+            {%- set ida = ida.append("set med " ~infoact) -%}
+        {%- elif actname == "set_ospf_metric_type" -%}
+            {%- set ida = ida.append("set metric-type " ~infoact) -%}
+        {%- elif actname == "set_metric_type" -%}
+            {%- set ida = ida.append("set metric-type " ~infoact) -%}
+        {%- elif actname == "set_tag" -%}
+            {%- set ida = ida.append("set tag " ~infoact) -%}
+        {%- else -%}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endif -%}
+{%- if statementsnum == 1 -%} 
+    {%- if infostmtnum.conditions == {} -%} 
+        {% if ida|length == 0 -%} 
+action_nocondition:pass 
+        {% else %}
+action_nocondition:{{ida|join("\n action_nocondition:")}} 
+        {%- endif -%}
+    {% else %}
+        {% if ida|length == 0 -%} 
+condition:{{idc[0]}}
+action:pass
+        {% else -%}
+condition:{{idc[0]}}
+action:{{ida|join("\n action:")}}
+        {% endif -%}
+    {%- endif %}
+{% else -%}
+    {%- set fori.value =fori.value + 1 -%} 
+    {%- if fori.value == 1 -%} 
+          {%- if ida|length == 0 -%} 
+condition:{{idc[0]}}
+action:pass 
+        {% else -%}
+condition:{{idc[0]}}
+action:{{ida|join("\n action:")}} 
+        {% endif -%}
+    {%- elif statementsnum == fori.value -%} 
+        {%- if ida|length == 0 -%} 
+condition_last:else
+action_last:pass
+        {% else -%}
+condition_last:else
+action_last:{{ida|join("\n action_last:")}}
+        {% endif -%}
+    {%- else -%}
+        {% if ida|length == 0 -%} 
+condition_elif:{{idc[0]}}
+action_elif:pass
+        {% else -%}
+condition_elif:{{idc[0]}}
+action_elif:{{ida|join("\n action_elif:")}}
+        {% endif -%}
+    {% endif -%}
+{% endif -%}
+{% endfor -%}
+{% endfor -%}
+{%- endfor -%}
