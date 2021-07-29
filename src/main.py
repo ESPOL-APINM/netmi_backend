@@ -1,4 +1,5 @@
 from flask import Flask,json,request
+import logging
 from flask_cors import CORS, cross_origin
 from jinja2 import Environment, FileSystemLoader
 import yaml
@@ -6,6 +7,11 @@ from gpapi import gpapi
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+
+@app.route('/',methods=['GET'])
+@cross_origin()
+def defaultfunction():
+    return "Hello World"
 
 @app.route('/show',methods=['POST'])
 @cross_origin()
@@ -75,7 +81,11 @@ def getparsingcfg():
                                   mimetype='text/cfg')
     return response
 
-   
+@app.errorhandler(500)
+def server_error(e):
+    # Log the error and stacktrace.
+    logging.exception('An error occurred during a request.')
+    return 'An internal error occurred.', 500
 
 if __name__ == "__main__":
     app.run(debug=True)
