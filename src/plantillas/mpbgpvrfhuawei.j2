@@ -1,0 +1,7 @@
+bgp #number
+{% for vrfname, infoname in data.items() %}
+ ipv4-family vpn-instance {{ vrfname }}
+{% if infoname.route_distinguisher is defined %}
+ router-id {{ infoname.route_distinguisher }}
+{% endif %}
+{% endfor -%}

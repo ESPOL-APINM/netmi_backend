@@ -1,0 +1,63 @@
+{% for interface, infointerface in data.items() %}
+interface {{interface}}
+{% if infointerface.description is defined %}
+ description {{ infointerface.description }}
+{% endif %}
+{% if infointerface.mtu is defined %}
+ undo portswitch
+ mtu {{ infointerface.mtu }}
+{% endif %}
+{% if infointerface.bandwidth is defined %}
+ bandwidth {{ infointerface.bandwidth }}
+{% endif %}
+{% if infointerface.ipv4 is defined %}
+{% if infointerface.ipv4.unnumbered is not defined %}
+{% for ip, infoip in infointerface.ipv4.items() %}
+ ip address {{ip}}
+{% endfor -%}
+{% else %}
+ ipv4 address unnumbered interface {{infointerface.ipv4.unnumbered.interface_ref}}
+{% endif %}
+{% else %}
+ switchport trunk allowed vlan none
+ switchport mode trunk
+{% endif %}
+{% if infointerface.counters is defined %}
+{% endif %}
+{% if infointerface.carrier_delay is defined %}
+ carrier-delay {{infointerface.carrier_delay}}
+{% endif %}
+{% if infointerface.carrier_delay_up is defined and infointerface.carrier_delay_down is not defined%}
+ carrier-delay up {{infointerface.carrier_delay_up}}
+{% endif %}
+{% if infointerface.carrier_delay_down is defined and infointerface.carrier_delay_up is not defined%}
+ carrier-delay down {{infointerface.carrier_delay_down}}
+{% endif %}
+{% if infointerface.carrier_delay_up is defined and infointerface.carrier_delay_down is defined%}
+ carrier-delay up {{infointerface.carrier_delay_up}} down {{infointerface.carrier_delay_down}}
+{% endif %}
+{% if infointerface.encapsulations is defined %}
+{% if infointerface.encapsulations.encapsulation is defined %}
+ encapsulation {{infointerface.encapsulations.encapsulation}}
+{% endif %}
+{% if infointerface.encapsulations.first_dot1q is defined and infointerface.encapsulations.second_dot1q is not defined%}
+ encapsulation dot1Q {{infointerface.encapsulations.first_dot1q}}
+{% endif %}
+{% if infointerface.encapsulations.first_dot1q is defined and infointerface.encapsulations.second_dot1q is defined%}
+ encapsulation dot1Q {{infointerface.encapsulations.first_dot1q}} second-dot1q {{infointerface.encapsulations.second_dot1q}}
+{% endif %}
+{% if infointerface.encapsulations.first_dot1q is defined and infointerface.encapsulations.native_vlan is defined%}
+ encapsulation dot1Q {{infointerface.encapsulations.first_dot1q}} native
+{% endif %}
+{% endif %}
+{% if data2 is defined  %}
+{% for service, serviceinfo in data2.service_instance.items() %}
+{% for serviceinterface, serviceinterfaceinfo in serviceinfo.interfaces.items() %}
+{% if interface == serviceinterface %}
+ bridge {{service}}
+{% endif %}
+{% endfor -%}
+{% endfor -%}
+
+{% endif -%}
+{% endfor -%}

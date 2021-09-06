@@ -1,0 +1,38 @@
+{% set prefixlist = data.prefix_set_name %}
+{% for prefixname, infoname in prefixlist.items()%}
+{% set prefixupper = prefixname.upper() %}
+{% if "PFX" in prefixupper %}
+{% set pu1 = prefixupper.split("PFX-") %}
+{% set pu2 = prefixupper.split("PFX_") %}
+{% if pu1|length == 2 %}
+{% set n = pu1[1] %}
+{% if infoname.prefixes is defined %}
+{% set prefixes = infoname.prefixes %}
+{% for prefixeskey, infoprefixes in prefixes.items()%}
+{% if infoprefixes.action is defined and infoprefixes.sequence is defined %}
+ip ip-prefix pfx_{{n}}_p1_permit index {{infoprefixes.sequence}} {{infoprefixes.action}} {{infoprefixes.prefix.split("/")[0]}} {{infoprefixes.prefix.split("/")[1]}}
+{% endif %}
+{% endfor -%}{% endif %}
+{% elif pu2|length == 2 %}
+{% set n = pu2[1] %}
+{% if infoname.prefixes is defined %}
+{% set prefixes = infoname.prefixes %}
+{% for prefixeskey, infoprefixes in prefixes.items()%}
+{% if infoprefixes.action is defined and infoprefixes.sequence is defined %}
+ip ip-prefix  pfx_{{n}}_p1_permit index {{infoprefixes.sequence}} {{infoprefixes.action}} {{infoprefixes.prefix.split("/")[0]}} {{infoprefixes.prefix.split("/")[1]}}
+{% endif %}
+{% endfor -%}
+{% endif %}
+{% endif %}
+{% else %}
+{% if infoname.prefixes is defined %}
+{% set prefixes = infoname.prefixes %}
+{% for prefixeskey, infoprefixes in prefixes.items()%}
+{% if infoprefixes.action is defined and infoprefixes.sequence is defined %}
+ip ip-prefix  pfx_{{prefixname}}_p1_permit index {{infoprefixes.sequence}} {{infoprefixes.action}} {{infoprefixes.prefix.split("/")[0]}} {{infoprefixes.prefix.split("/")[1]}}
+{% endif %}
+{% endfor -%}
+{% endif %}
+{% endif %}
+
+{% endfor -%}

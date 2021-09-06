@@ -1,0 +1,23 @@
+{% for vrfname, infoname in data.items() %}
+ip vpn-instance {{ vrfname }}
+{% if infoname.description is defined %}
+description {{ infoname.description }}
+{% endif %}
+ ipv4-family
+  route-distinguisher {{infoname.route_distinguisher}}
+{% for rt,infort in infoname.address_family.ipv4.route_targets.items() %}
+{% if infort.rt_type == "both" %}
+  vpn-target {{ rt }} both
+{% endif %}
+{% if infort.rt_type == "export" %}
+  vpn-target {{ rt }} export-extcommunity
+{% endif %}
+{% if infort.rt_type == "import" %}
+  vpn-target {{ rt }} import-extcommunity
+{% endif %}
+{% endfor -%}
+{% if infoname.address_family.ipv4.routing_table_limit is defined %}
+  prefix limit {{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_number }} {{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value }}
+{% endif %}
+
+{% endfor -%}

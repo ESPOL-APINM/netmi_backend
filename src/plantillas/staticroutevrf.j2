@@ -1,0 +1,28 @@
+router static
+{% for vrfname, infoname in data.items() %}
+ vrf {{ vrfname }}
+  address-family ipv4 unicast
+  {% if infoname.address_family is defined %}
+  {% if infoname.address_family.ipv4 is defined %}
+  {% if infoname.address_family.ipv4.routes is defined %}
+  {% for ip, infoip in infoname.address_family.ipv4.routes.items() %}
+  {% if infoip.next_hop is defined %}
+  {% if infoip.next_hop.next_hop_list is defined %}
+  {% if infoip.next_hop.next_hop_list.1 is defined %}
+  {% if infoip.next_hop.next_hop_list.1.outgoing_interface is defined and infoip.next_hop.next_hop_list.1.next_hop is defined%}
+   {{ip}} {{infoip.next_hop.next_hop_list.1.outgoing_interface}} {{infoip.next_hop.next_hop_list.1.next_hop}}
+  {% elif infoip.next_hop.next_hop_list.1.outgoing_interface is defined and infoip.next_hop.next_hop_list.1.next_hop is not defined%}
+   {{ip}} {{infoip.next_hop.next_hop_list.1.outgoing_interface}}
+  {% elif infoip.next_hop.next_hop_list.1.outgoing_interface is not defined and infoip.next_hop.next_hop_list.1.next_hop is defined%}
+   {{ip}} {{infoip.next_hop.next_hop_list.1.next_hop}}
+  {% endif -%}
+  {% endif -%}
+  {% endif -%}
+  {% endif -%}
+  {% endfor -%}
+  {% endif -%}
+  {% endif -%}
+  {% endif %}
+  !
+!
+{% endfor -%}

@@ -41,6 +41,14 @@ def getparsingyaml():
         connection =  gpapi(json_data)
         parse = connection.showconfig(show)
         data = {"data":parse} 
+        connection.disconnect()
+        try:
+            show2 = json_data["show2"]
+            parse2 = connection.showconfig(show2)
+            data = {"data":parse,"data2":parse2} 
+        except:
+            data = {"data":parse} 
+        connection.disconnect()
         env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
         template = env.get_template(plantilla)
         doc = template.render(data)
@@ -62,13 +70,47 @@ def getparsingcfg():
         show = json_data["show"]
         plantilla = json_data["plantilla"]
         connection =  gpapi(json_data)
-        if show=="show interfaces":
+        parse = connection.showconfig(show)
+        data = {"data":parse} 
+        connection.disconnect()
+        try:
             show2 = json_data["show2"]
-            parse=connection.showconfig2parsers(show,show2)
-            data=parse
-        else:
-            parse = connection.showconfig(show)
+            parse2 = connection.showconfig(show2)
+            data = {"data":parse,"data2":parse2} 
+        except:
             data = {"data":parse} 
+        connection.disconnect()
+        env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
+        template = env.get_template(plantilla)
+        doc = template.render(data)
+        s=200
+    except:
+        doc="No data"
+        s=400
+    response = app.response_class(response=doc,
+                                  status=s,
+                                  mimetype='text/cfg')
+    return response
+
+#STATIC ROUTE VRF
+@app.route('/getvrfstaticroute',methods=['POST'])
+@cross_origin()
+def getvrfstaticroute():
+    try:
+        json_data = request.get_json()
+        plantilla = json_data["plantilla"]
+        connection =  gpapi(json_data)
+        parse = connection.showconfig("show vrf")
+        vrf={}
+        for v in parse['vrf']:
+            try:
+                cmd="show ip static route vrf "+v
+                a= connection.showconfig(cmd)
+                vrf[v]=a['vrf'][v]
+            except:
+                vrf=vrf
+        data={"data":vrf}
+        connection.disconnect()
         env = Environment(loader = FileSystemLoader('./'), trim_blocks=True, lstrip_blocks=True)
         template = env.get_template(plantilla)
         doc = template.render(data)

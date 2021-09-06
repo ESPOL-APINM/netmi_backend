@@ -1,0 +1,90 @@
+{% for routemapname, infoname in data.items() %}
+route-policy {{ routemapname }} 
+{% set fori = namespace(value=0) -%} 
+{%- for statements, infostmt in infoname.items() -%}
+{%- set statementsnum = infostmt.keys()|length -%} 
+{%- for stmtnum, infostmtnum in infostmt.items() %}
+{%- if infostmtnum.conditions is defined -%} 
+    {%- if infostmtnum.conditions != {} -%} 
+        {%- for condname, infocond in infostmtnum.conditions.items() %}
+            {% if condname == "match_med_eq" %}
+ if-match rib-metric eq {{infocond}}
+            {% elif condname == "match_level_eq" %}
+ if-match route-type is {{infocond}}
+            {% elif condname == "match_tag_list" %}            
+ if-match tag eq {{infocond}}
+            {% elif condname == "match_prefix_list" %}
+                {% set prefixupper = infocond.upper() -%}
+                {% if "PFX" in prefixupper -%}
+                    {% set pu1 = prefixupper.split("PFX-") -%}
+                    {% set pu2 = prefixupper.split("PFX_") -%}
+                    {% if pu1|length == 2 -%}
+                        {% set n = pu1[1] %}
+  if-match destination in pfx_{{n}}_p1_permit
+                    {% elif pu2|length == 2 -%}
+                        {% set n = pu2[1]-%}
+  if-match destination in pfx_{{n}}_p1_permit
+                    {% else %}
+  if-match destination in pfx_{{infocond}}_p1_permit
+                    {% endif -%}
+                {% else %}
+ if-match destination in pfx_{{infocond}}_p1_permit
+                {% endif -%}
+            {% elif condname == "match_local_pref_eq" %}
+            {% elif condname == "match_nexthop_in" %}
+            {% elif condname == "match_local_pref_eq" %}
+            {% elif condname == "match_nexthop_in" %}
+            {% elif condname == "match_route_type" %}
+            {% elif condname == "match_community_list" %}
+            {% elif condname == "match_ext_community_list" %}
+            {% elif condname == "match_as_path_list" %}
+            {% elif condname == "match_interface" %}
+            {% elif condname == "match_as_number_list" %}
+            {% else %}
+            {%- endif -%}
+            {%- if infostmtnum.actions is defined -%} 
+                {%- for actname, infoact in infostmtnum.actions.items() -%}
+                    {% if actname == "set_route_origin" %}
+                    {% elif actname == "set_distance" %}
+  apply distance {{infoact}}
+                    {% elif actname == "set_local_pref" %}
+  apply local-preference {{infoact}}
+                    {% elif actname == "set_next_hop" %}
+                    {% elif actname == "set_next_hop_self" %}
+                    {% elif actname == "set_as_path_prepend" %}
+                    {% elif actname == "set_as_path_group" %}
+                    {% elif actname == "set_as_path_prepend_repeat_n" %}
+                    {% elif actname == "set_community" %}
+  apply set-community {{infoact}}
+                    {% elif actname == "set_community_additive" %}
+                    {% elif actname == "set_community_no_advertise" %}
+                    {% elif actname == "set_community_no_export" %}
+                    {% elif actname == "set_community_delete" %}
+                    {% elif actname == "set_ext_community_rt" %}
+                    {% elif actname == "set_ext_community_soo" %}
+                    {% elif actname == "set_ext_community_vpn" %}
+                    {% elif actname == "set_ext_community_rt_additive" %}
+                    {% elif actname == "set_ext_community_delete" %}
+                    {% elif actname == "set_level" %}
+  apply level {{infoact}}
+                    {% elif actname == "set_weight" %}
+  apply weight {{infoact}}
+                    {% elif actname == "set_metric" %}
+  apply med {{infoact}}
+                    {% elif actname == "set_ospf_metric_type" %}
+  apply metric-type {{infoact}}
+                    {% elif actname == "set_metric_type" %}
+  apply metric-type {{infoact}}
+                    {% elif actname == "set_tag" %}
+  apply tag {{infoact}}
+                    {% else %}
+                    {%- endif -%}
+                {%- endfor -%}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- else -%}
+    {%- endif -%}
+{%- endif -%}
+{% endfor -%}
+{% endfor -%}
+{%- endfor -%}
