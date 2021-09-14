@@ -10,21 +10,22 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route('/show',methods=['POST'])
 @cross_origin()
-def show():
+def getshow():
     try:
         json_data = request.get_json()
         connection =  gpapi(json_data)
-        parse = connection.showconfig("show access-list")
+        parse = connection.showconfig("show version")
+        connection.disconnect()
         data = {"data":parse} 
         s=200
     except:
         doc="No data"
+        data = {"data":""} 
         s=400
     response = app.response_class(response=json.dumps(data),
-                                  status=200,
+                                  status=s,
                                   mimetype='application/json')
     return response
-
 #YAML
 @app.route('/getparsingyaml',methods=['POST'])
 @cross_origin()
@@ -67,7 +68,6 @@ def getparsingcfg():
         connection =  gpapi(json_data)
         parse = connection.showconfig(show)
         data = {"data":parse} 
-        connection.disconnect()
         try:
             show2 = json_data["show2"]
             parse2 = connection.showconfig(show2)

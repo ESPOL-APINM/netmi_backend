@@ -1,2 +1,3 @@
-pyats[full] == 21.8
-genie == 21.8
+pyats[full] == 21.6
+pyats[library] == 21.6
+genie ==21.6
