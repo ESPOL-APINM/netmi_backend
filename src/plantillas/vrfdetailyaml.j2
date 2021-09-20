@@ -4,7 +4,9 @@
 {% if infoname.description is defined %}
     vrf_description:"{{ infoname.description }}"
 {% endif %}
+{% if infoname.address_family is defined %}
     vrf_addfam:"ipv4 unicast"
+{% if infoname.address_family.ipv4.route_targets is defined %}
 {% for rt,infort in infoname.address_family.ipv4.route_targets.items() %}
 {% if infort.rt_type == "both" %}
     vrf_rt_export:"{{ rt }}"
@@ -20,5 +22,7 @@
 {% if infoname.address_family.ipv4.routing_table_limit is defined %}
     vrf_limit:"{{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_number }}"
     vrf_percent"{{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value }}"
+{% endif %}
+{% endif %}
 {% endif %}
 {% endfor -%}

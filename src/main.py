@@ -57,11 +57,13 @@ def getparsingyaml():
         connection.disconnect()
         env = Environment(loader=FileSystemLoader(
             './'), trim_blocks=True, lstrip_blocks=True)
+        print(env)
         template = env.get_template(plantilla)
+        print(template)
         doc = template.render(data)
         s = 200
     except:
-        doc = "No data"
+        doc = "no data"
         s = 400
     response = app.response_class(response=doc,
                                   status=s,

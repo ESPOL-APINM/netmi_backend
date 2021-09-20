@@ -3,8 +3,12 @@ ip vpn-instance {{ vrfname }}
 {% if infoname.description is defined %}
 description {{ infoname.description }}
 {% endif %}
+{% if infoname.address_family is defined %}
  ipv4-family
+{% if infoname.route_distinguisher is defined %}
   route-distinguisher {{infoname.route_distinguisher}}
+{% endif -%}
+{% if infoname.address_family.ipv4.route_targets is defined %}
 {% for rt,infort in infoname.address_family.ipv4.route_targets.items() %}
 {% if infort.rt_type == "both" %}
   vpn-target {{ rt }} both
@@ -21,3 +25,5 @@ description {{ infoname.description }}
 {% endif %}
 
 {% endfor -%}
+{% endif %}
+{% endif %}

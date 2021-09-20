@@ -3,7 +3,9 @@ vrf {{ vrfname }}
 {% if infoname.description is defined %}
 description {{ infoname.description }}
 {% endif %}
+{% if infoname.address_family is defined %}
 address-family ipv4 unicast
+{% if infoname.address_family.ipv4.route_targets is defined %}
 {% for rt,infort in infoname.address_family.ipv4.route_targets.items() %}
 {% if infort.rt_type == "both" %}
 export route-target {{ rt }}
@@ -18,6 +20,8 @@ import route-target {{ rt }}
 {% endfor -%}
 {% if infoname.address_family.ipv4.routing_table_limit is defined %}
 maximum prefix {{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_number }} {{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value }}
+{% endif %}
+{% endif %}
 {% endif %}
 !
 {% endfor -%}
