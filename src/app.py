@@ -69,9 +69,7 @@ def getparsingyaml():
                                   mimetype='text/yaml')
     return response
 
-# CFG
-
-
+# #FUNCION PARA PARSEAMIENTO EN CFG
 @app.route('/getparsingcfg', methods=['POST'])
 @cross_origin()
 def getparsingcfg():
