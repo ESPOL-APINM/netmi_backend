@@ -1,4 +1,4 @@
-{% for interface, infointerface in data1.items() %}
+{% for interface, infointerface in data.items() %}
 interface:
  interface_name: {{interface}}
 {% if infointerface.description is defined %}
@@ -51,6 +51,7 @@ interface:
  encapsulation: dot1Q {{infointerface.encapsulations.first_dot1q}} native
 {% endif %}
 {% endif %}
+{% if data2 is defined %}
 {% for service, serviceinfo in data2.service_instance.items() %}
 {% for serviceinterface, serviceinterfaceinfo in serviceinfo.interfaces.items() %}
 {% if interface == serviceinterface %}
@@ -66,4 +67,5 @@ interface:
 {% endif %}
 {% endfor -%}
 {% endfor -%}
+{% endif %}
 {% endfor -%}

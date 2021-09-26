@@ -7,65 +7,64 @@ from gpapi import gpapi
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+# CROSS ORIGIN PERMITE CONEXION CON FRONTEND
 
-
+#FUNCION PARA PROBAR MICROSERVICIO
 @app.route('/', methods=['GET'])
 @cross_origin()
 def status():
     print("Ok!")
     return "Hello Netmi!"
 
-
+#FUNCION PARA PROBAR COMANDOS SHOWS EN DISPOSITIVOS
 @app.route('/show', methods=['POST'])
 @cross_origin()
 def getshow():
     try:
-        json_data = request.get_json()
-        connection = gpapi(json_data)
-        parse = connection.showconfig("show version")
-        connection.disconnect()
-        data = {"data": parse}
+        json_data = request.get_json() #RECIBE JSON DEL BODY DEL POST
+        show = json_data["show"] #RECIBE PARAMETRO SHOW
+        connection = gpapi(json_data)  #DEFINE CONEXION
+        connection.connect() #INICIAR SESION
+        parse = connection.showconfig("show version") #RECIBE DICCIONARIO DE SHOW
+        connection.disconnect() #CIERRA SESION
+        data = {"data": parse}  #DICCIONARIO FINAL 
         s = 200
     except:
-        doc = "No data"
         data = {"data": ""}
         s = 400
-    response = app.response_class(response=json.dumps(data),
+    response = app.response_class(response=json.dumps(data), #ENVIA EN FORMATO JSON EL REQUEST
                                   status=s,
                                   mimetype='application/json')
     return response
-# YAML
 
-
+#FUNCION PARA PARSEAMIENTO EN YAML
 @app.route('/getparsingyaml', methods=['POST'])
 @cross_origin()
 def getparsingyaml():
     try:
-        json_data = request.get_json()
-        show = json_data["show"]
-        plantilla = json_data["plantilla"]
-        connection = gpapi(json_data)
-        parse = connection.showconfig(show)
-        data = {"data": parse}
-        connection.disconnect()
+        json_data = request.get_json() #RECIBE JSON DEL BODY DEL POST
+        show = json_data["show"] #RECIBE PARAMETRO SHOW
+        plantilla = json_data["plantilla"]  #RECIBE PARAMETRO PLANTILLA
+        connection = gpapi(json_data)  #DEFINE CONEXION
+        connection.connect() #INICIAR SESION
+        parse = connection.showconfig(show) #RECIBE DICCIONARIO DE SHOW
+        data = {"data": parse} #DICCIONARIO FINAL
         try:
-            show2 = json_data["show2"]
-            parse2 = connection.showconfig(show2)
-            data = {"data": parse, "data2": parse2}
+            show2 = json_data["show2"] #RECIBE PARAMETRO SHOW
+            parse2 = connection.showconfig(show2) #RECIBE DICCIONARIO DE SHOW2
+            data = {"data": parse, "data2": parse2} #DICCIONARIO FINAL
         except:
-            data = {"data": parse}
-        connection.disconnect()
-        env = Environment(loader=FileSystemLoader(
+            data = {"data": parse} #DICCIONARIO FINAL
+        connection.disconnect() #CIERRA SESION
+        env = Environment(loader=FileSystemLoader( #DEFINE DIRECTORIO DE TRABAJO
             './'), trim_blocks=True, lstrip_blocks=True)
-        print(env)
-        template = env.get_template(plantilla)
-        print(template)
-        doc = template.render(data)
+        template = env.get_template(plantilla) #DEFINE PLANTILLA A UTILIZAR
+        doc = template.render(data) #RENDERIZACION
         s = 200
     except:
         doc = "no data"
         s = 400
-    response = app.response_class(response=doc,
+    response = app.response_class(response=doc, #ENVIA DOCUMENTO FORMATO YAML
                                   status=s,
                                   mimetype='text/yaml')
     return response
@@ -77,28 +76,29 @@ def getparsingyaml():
 @cross_origin()
 def getparsingcfg():
     try:
-        json_data = request.get_json()
-        show = json_data["show"]
-        plantilla = json_data["plantilla"]
-        connection = gpapi(json_data)
-        parse = connection.showconfig(show)
-        data = {"data": parse}
+        json_data = request.get_json() #RECIBE JSON DEL BODY DEL POST
+        show = json_data["show"]  #RECIBE PARAMETRO SHOW
+        plantilla = json_data["plantilla"]  #RECIBE PARAMETRO PLANTILLA
+        connection = gpapi(json_data)  #DEFINE CONEXION
+        connection.connect() #INICIAR SESION
+        parse = connection.showconfig(show) #RECIBE DICCIONARIO DE SHOW2
+        data = {"data": parse} #DICCIONARIO FINAL
         try:
-            show2 = json_data["show2"]
-            parse2 = connection.showconfig(show2)
-            data = {"data": parse, "data2": parse2}
+            show2 = json_data["show2"] #RECIBE PARAMETRO SHOW2
+            parse2 = connection.showconfig(show2) #RECIBE DICCIONARIO DE SHOW2
+            data = {"data": parse, "data2": parse2} #DICCIONARIO FINAL
         except:
-            data = {"data": parse}
-        connection.disconnect()
-        env = Environment(loader=FileSystemLoader(
+            data = {"data": parse} #DICCIONARIO FINAL
+        connection.disconnect() #CIERRA SESION
+        env = Environment(loader=FileSystemLoader( #DEFINE DIRECTORIO DE TRABAJO
             './'), trim_blocks=True, lstrip_blocks=True)
-        template = env.get_template(plantilla)
-        doc = template.render(data)
+        template = env.get_template(plantilla) #DEFINE PLANTILLA A UTILIZAR
+        doc = template.render(data) #RENDERIZACION
         s = 200
     except:
         doc = "No data"
         s = 400
-    response = app.response_class(response=doc,
+    response = app.response_class(response=doc, #ENVIA DOCUMENTO FORMATO YAML
                                   status=s,
                                   mimetype='text/cfg')
     return response
@@ -110,31 +110,32 @@ def getparsingcfg():
 @cross_origin()
 def getvrfstaticroute():
     try:
-        json_data = request.get_json()
-        plantilla = json_data["plantilla"]
-        connection = gpapi(json_data)
-        parse = connection.showconfig("show vrf")
+        json_data = request.get_json()  #RECIBE JSON DEL BODY DEL POST
+        plantilla = json_data["plantilla"] #RECIBE PARAMETRO PLANTILLA
+        connection = gpapi(json_data)  #DEFINE CONEXION
+        connection.connect() #INICIAR SESION
+        parse = connection.showconfig("show vrf") #RECIBE DICCIONARIO DE COMANDO SHOW VRF
         vrf = {}
         for v in parse['vrf']:
             try:
-                cmd = "show ip static route vrf "+v
-                a = connection.showconfig(cmd)
-                vrf[v] = a['vrf'][v]
+                cmd = "show ip static route vrf "+v #DEFINE CADA SHOW DE RUTA ESTATICA CON VRF
+                a = connection.showconfig(cmd) #RECIBE DICCIONARIO DE CADA RUTA ESTATICA VRF
+                vrf[v] = a['vrf'][v] #DICCIONARIO PARA CADA VRF
             except:
-                vrf = vrf
-        data = {"data": vrf}
-        connection.disconnect()
-        env = Environment(loader=FileSystemLoader(
+                vrf = vrf 
+        data = {"data": vrf} #DICCIONARIO FINAL
+        connection.disconnect() #CIERRE SESION 
+        env = Environment(loader=FileSystemLoader( #DEFINE DIRECTORIO DE TRABAJO
             './'), trim_blocks=True, lstrip_blocks=True)
-        template = env.get_template(plantilla)
-        doc = template.render(data)
+        template = env.get_template(plantilla) #DEFINE PLANTILLA A UTILIZAR
+        doc = template.render(data) #RENDERIZACION
         s = 200
     except:
         doc = "No data"
         s = 400
-    response = app.response_class(response=doc,
+    response = app.response_class(response=doc, #ENVIA DOCUMENTO FORMATO TXT
                                   status=s,
-                                  mimetype='text/cfg')
+                                  mimetype='text/txt')
     return response
 
 
@@ -146,4 +147,4 @@ def server_error(e):
 
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    app.run(host='127.0.0.1', port=8080, debug=True) #DEFINE IP Y PUERTO DE MICROSERVICIO

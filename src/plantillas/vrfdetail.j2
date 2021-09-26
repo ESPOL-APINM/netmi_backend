@@ -5,8 +5,10 @@ description {{ infoname.description }}
 {% endif %}
 {% if infoname.address_family is defined %}
 address-family ipv4 unicast
-{% if infoname.address_family.ipv4.route_targets is defined %}
-{% for rt,infort in infoname.address_family.ipv4.route_targets.items() %}
+{% for i4,infoi4 in infoname.address_family.items() %}
+{% if infoi4.route_targets is defined %}
+{% for rt,infort in infoi4.route_targets.items() %}
+{% if infort.rt_type is defined %}
 {% if infort.rt_type == "both" %}
 export route-target {{ rt }}
 import route-target {{ rt }}
@@ -17,11 +19,17 @@ export route-target {{ rt }}
 {% if infort.rt_type == "import" %}
 import route-target {{ rt }}
 {% endif %}
+{% endif %}
 {% endfor -%}
-{% if infoname.address_family.ipv4.routing_table_limit is defined %}
-maximum prefix {{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_number }} {{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value }}
+{% endif %}
+{% if infoi4.routing_table_limit is defined %}
+{% if infoi4.routing_table_limit.routing_table_limit_number is defined %}
+{% if infoi4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value is defined %}
+maximum prefix {{ infoi4.routing_table_limit.routing_table_limit_number }} {{ infoi4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value }}
 {% endif %}
 {% endif %}
+{% endif %}
+{% endfor -%}
 {% endif %}
 !
 {% endfor -%}

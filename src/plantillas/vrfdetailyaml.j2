@@ -6,8 +6,10 @@
 {% endif %}
 {% if infoname.address_family is defined %}
     vrf_addfam:"ipv4 unicast"
-{% if infoname.address_family.ipv4.route_targets is defined %}
-{% for rt,infort in infoname.address_family.ipv4.route_targets.items() %}
+{% for i4,infoi4 in infoname.address_family.items() %}
+{% if infoi4.route_targets is defined %}
+{% for rt,infort in infoi4.route_targets.items() %}
+{% if infort.rt_type is defined %}
 {% if infort.rt_type == "both" %}
     vrf_rt_export:"{{ rt }}"
     vrf_rt_import:"{{ rt }}"
@@ -18,11 +20,17 @@
 {% if infort.rt_type == "import" %}
     vrf_rt_import:"{{ rt }}"
 {% endif %}
+{% endif %}
 {% endfor -%}
-{% if infoname.address_family.ipv4.routing_table_limit is defined %}
-    vrf_limit:"{{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_number }}"
-    vrf_percent"{{ infoname.address_family.ipv4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value }}"
+{% endif %}
+{% if infoi4.routing_table_limit is defined %}
+{% if infoi4.routing_table_limit.routing_table_limit_number is defined %}
+{% if infoi4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value is defined %}
+    vrf_limit:"{{ infoi4.routing_table_limit.routing_table_limit_number }}"
+    vrf_percent"{{ infoi4.routing_table_limit.routing_table_limit_action.enable_alert_percent.alert_percent_value }}"
 {% endif %}
 {% endif %}
+{% endif %}
+{% endfor -%}
 {% endif %}
 {% endfor -%}

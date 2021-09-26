@@ -1,11 +1,11 @@
 {% for aclname, infoname in data.items() %}
 {{aclname}}:
     acl_name:"{{aclname}}"
-{% for aclid, infoid in infoname.aces.items() %} 
-{% if infoid.matches.l4 is defined %}
-{% if infoid.matches.l4.tcp is defined %}
-{% if infoid.matches.l3.ipv4.destination_network is defined %}
-{% if infoid.matches.l3.ipv4.source_network.any is defined %}
+{% for aclid, infoid in infoname.aces.items() -%} 
+{% if infoid.matches.l4 is defined -%}
+{% if infoid.matches.l4.tcp is defined -%}
+{% if infoid.matches.l3.ipv4.destination_network is defined -%}
+{% if infoid.matches.l3.ipv4.source_network.any is defined -%}
 {% if infoid.matches.l4.tcp.destination_port is defined %}
     acl_action{{aclid}}:"{{infoid.actions.forwarding}}"
     acl_protocol{{aclid}}:"tcp"
@@ -13,13 +13,18 @@
     acl_destination{{aclid}}:"any"
     acl_operator{{aclid}}:"{{infoid.matches.l4.tcp.destination_port.operator.operator}}"
     acl_1port{{aclid}}:{{infoid.matches.l4.tcp.destination_port.operator.port}} 
-{% endif %}
-{% endif %}
-{% endif %}
-{% endif %}
-{% if infoid.matches.l4.udp is defined %}
-{% if infoid.matches.l3.ipv4.destination_network is defined %}
-{% if infoid.matches.l3.ipv4.source_network is defined %}
+{% else %}
+    acl_action{{aclid}}:"{{infoid.actions.forwarding}}"
+    acl_protocol{{aclid}}:"tcp"
+    acl_source{{aclid}}:"any"
+    acl_destination{{aclid}}:"any"
+{% endif -%}
+{% endif -%}
+{% endif -%}
+{% endif -%}
+{% if infoid.matches.l4.udp is defined -%}
+{% if infoid.matches.l3.ipv4.destination_network is defined -%}
+{% if infoid.matches.l3.ipv4.source_network is defined -%}
 {% if infoid.matches.l4.udp.destination_port is defined %}
     acl_action{{aclid}}:"{{infoid.actions.forwarding}}"
     acl_protocol{{aclid}}:"udp"
@@ -27,29 +32,34 @@
     acl_destination{{aclid}}:"any" 
     acl_operator{{aclid}}:{{infoid.matches.l4.udp.destination_port.operator.operator}}"
     acl_1port{{aclid}}:"{{infoid.matches.l4.udp.destination_port.operator.port}}"
-{% endif %}
-{% endif %}
-{% endif %}
-{% endif %}
-{% endif %}
-{% if infoid.matches.l3.ipv4.protocol == "ipv4" %}
-{% if infoid.matches.l3.ipv4.destination_network is not defined %}
+{% else %}
+    acl_action{{aclid}}:"{{infoid.actions.forwarding}}"
+    acl_protocol{{aclid}}:"udp"
+    acl_source{{aclid}}:"any"
+    acl_destination{{aclid}}:"any" 
+{% endif -%}
+{% endif -%}
+{% endif -%}
+{% endif -%}
+{% endif -%}
+{% if infoid.matches.l3.ipv4.protocol == "ipv4" -%}
+{% if infoid.matches.l3.ipv4.destination_network is not defined -%}
 {% for ip in infoid.matches.l3.ipv4.source_network %}
     acl_action{{aclid}}:"{{infoid.actions.forwarding}}"
     acl_source{{aclid}}:"{{ip}}"
-{% endfor %}
-{% endif %}
-{% endif %}
-{% if infoid.matches.l3.ipv4.protocol == "ipv4" %}
-{% if infoid.matches.l3.ipv4.destination_network is defined %}
-{% for ips in infoid.matches.l3.ipv4.source_network %}
+{% endfor -%}
+{% endif -%}
+{% endif -%}
+{% if infoid.matches.l3.ipv4.protocol == "ipv4" -%}
+{% if infoid.matches.l3.ipv4.destination_network is defined -%}
+{% for ips in infoid.matches.l3.ipv4.source_network -%}
 {% for ipd in infoid.matches.l3.ipv4.destination_network %}
     acl_action{{aclid}}:"{{infoid.actions.forwarding}}"
     acl_souce{{aclid}}:"{{ips}}"
     acl_destination{{aclid}}:"{{ipd}}"
 {% endfor %}
-{% endfor %}
-{% endif %}
-{% endif %}
-{% endfor %}
+{% endfor -%}
+{% endif -%}
+{% endif -%}
+{% endfor -%}
 {% endfor %}
